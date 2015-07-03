@@ -4,8 +4,14 @@
   "author": "Callum Locke",
   "dependencies": {
     "babel-runtime": "^5.6.15",
+    "browser-resolve-noio": "^1.4.1",
     "browserify": "^10.2.4",
-    "streamifier": "^0.1.1"
+    "defined": "^1.0.0",
+    "has": "^1.0.0",
+    "insert-module-globals": "^6.5.1",
+    "module-deps-diskless": "^3.8.1",
+    "streamifier": "^0.1.1",
+    "xtend": "^4.0.0"
   },
   "keywords": [
     "exhibit-plugin"
@@ -13,8 +19,8 @@
   "license": "MIT",
   "main": "lib",
   "scripts": {
-    "build": "babel src --source-maps --optional runtime --out-dir lib",
-    "prepublish": "rimraf lib && npm run build",
+    "build": "rimraf lib && babel src --source-maps --optional runtime --out-dir lib",
+    "prepublish": "npm run build",
     "watch": "nodemon --exec 'npm run build' --watch src --watch index.js --watch package.json"
   },
   "devDependencies": {

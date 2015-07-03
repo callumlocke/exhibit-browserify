@@ -1,7 +1,9 @@
 import {extname} from 'path';
-import browserify from 'browserify';
 import {createReadStream} from 'streamifier';
 import {join} from 'path';
+import browserResolve from 'browser-resolve-noio';
+import getCreateDeps from './get-create-deps';
+
 
 const defaults = {
   extensions: null,
@@ -11,9 +13,8 @@ const defaults = {
 
 
 export default function (entryMatcher = '**/{*.,}entry.js', _options) {
-  let options;
-  let allExtensions;
-  let nodeModulesPath;
+  let allSetUp, options, allExtensions, browserifyOptions, Browserify;
+
 
   /**
    * One-time setup function.
@@ -31,7 +32,25 @@ export default function (entryMatcher = '**/{*.,}entry.js', _options) {
     allExtensions = ['.js', '.json'];
     if (options.extensions) allExtensions = allExtensions.concat(options.extensions);
 
-    nodeModulesPath = join(options.cwd, 'node_modules');
+    // create the options that will be used to instantiate every Browserify instance
+    browserifyOptions = {
+      extensions: options.extensions,
+      basedir: options.cwd, // or should this be the source dir?
+      debug: options.sourceMap,
+      fullPaths: true,
+      paths: join(options.cwd, 'node_modules'),
+      // cache: cache,
+      // packageCache: packageCache,
+    };
+
+
+    // load browserify
+    Browserify = require('browserify');
+
+    // delete it from the global cache because we're going to monkey-patch it
+    // delete require.cache[require.resolve('browserify')]
+
+    allSetUp = true;
   }
 
 
@@ -42,8 +61,8 @@ export default function (entryMatcher = '**/{*.,}entry.js', _options) {
   return function exhibitBrowserify(path, contents) {
     const {Promise, _, minimatch} = this;
 
-    // perform initial setup, only once
-    if (!options) setup(Promise, _, minimatch);
+    // do initial setup only once
+    if (!allSetUp) setup(Promise, _, minimatch);
 
     // TODO: delete from cache?
 
@@ -54,29 +73,22 @@ export default function (entryMatcher = '**/{*.,}entry.js', _options) {
     // block if it's a non-entry file
     if (!entryMatcher(path)) return null;
 
-    // it's an entry file; process it.
 
+    // it's an entry file...
 
+    // monkey-patch Browserify for this one instance
+    Browserify.prototype._createDeps = getCreateDeps(this);
+
+    // make a browserify instance
+    const b = new Browserify(browserifyOptions);
+
+    // browserify expects a stream, not a buffer
     const stream = createReadStream(contents);
-    // const stream = createReadStream(new Buffer('alert("hi");'));
-
-    const b = browserify({
-      extensions: options.extensions,
-      basedir: options.cwd, // or should this be the source dir?
-      // cache: cache,
-      // packageCache: packageCache,
-      debug: options.sourceMap,
-      fullPaths: true,
-      paths: [nodeModulesPath],
-    });
-
-    // weird way to tell browserify what the file's name is when passing in a stream
     stream.file = path; // https://github.com/substack/node-browserify/issues/816
-
-    // give the stream to the bundler
     b.add(stream);
 
-    // run the bundler
+    
+    // bundle it
     return Promise.promisify(b.bundle.bind(b))()
       .then(bundledContents => {
         // TODO: separate out souce map? ensure extension is correct?
