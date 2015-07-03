@@ -1,6 +1,6 @@
 {
   "name": "exhibit-browserify",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "author": "Callum Locke",
   "dependencies": {
     "babel-runtime": "^5.6.15",
