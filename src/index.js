@@ -77,7 +77,7 @@ export default function (entryMatcher = '**/{*.,}entry.js', _options) {
     // it's an entry file...
 
     // monkey-patch Browserify for this one instance
-    Browserify.prototype._createDeps = getCreateDeps(this);
+    Browserify.prototype._createDeps = getCreateDeps(this, allExtensions);
 
     // make a browserify instance
     const b = new Browserify(browserifyOptions);
@@ -87,7 +87,7 @@ export default function (entryMatcher = '**/{*.,}entry.js', _options) {
     stream.file = path; // https://github.com/substack/node-browserify/issues/816
     b.add(stream);
 
-    
+
     // bundle it
     return Promise.promisify(b.bundle.bind(b))()
       .then(bundledContents => {

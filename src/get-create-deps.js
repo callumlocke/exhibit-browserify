@@ -14,7 +14,7 @@ import builtins from 'browserify/lib/builtins';
 import insertGlobals from 'insert-module-globals';
 import browserResolveNoio from 'browser-resolve-noio';
 
-module.exports = function getCreateDeps(plugin) {
+module.exports = function getCreateDeps(plugin, types) {
     // plugin gives us plugin.import(), etc. plus lodash of course.
     const {_} = plugin;
 
@@ -25,7 +25,7 @@ module.exports = function getCreateDeps(plugin) {
             encoding = null;
         }
 
-        plugin.import(filePath).then(result => {
+        plugin.import(filePath, types).then(result => {
             callback(null, encoding ?
                 result.contents.toString(encoding) :
                 result.contents
@@ -37,7 +37,7 @@ module.exports = function getCreateDeps(plugin) {
     };
 
     const isFile = (filePath, callback) => {
-        plugin.import(filePath).then(() => {
+        plugin.import(filePath, types).then(() => {
             callback(null, true);
         }).catch(error => {
             if (error.code === 'EXHIBITNOTFOUND') {
