@@ -31,7 +31,6 @@ module.exports = function getCreateDeps(plugin, types) {
                 result.contents
             );
         }).catch(error => {
-            if (error.code === 'EXHIBITNOTFOUND') error.code = 'ENOENT';
             callback(error);
         });
     };
@@ -40,11 +39,10 @@ module.exports = function getCreateDeps(plugin, types) {
         plugin.import(filePath, types).then(() => {
             callback(null, true);
         }).catch(error => {
-            if (error.code === 'EXHIBITNOTFOUND') {
+            if (error.code === 'ENOENT' || error.code === 'EISDIR') {
                 callback(null, false);
             }
             else {
-                if (error.code === 'EXHIBITNOTFOUND') error.code = 'ENOENT';
                 callback(error);
             }
         });
