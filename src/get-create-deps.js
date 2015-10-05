@@ -15,8 +15,8 @@ import insertGlobals from 'insert-module-globals';
 import browserResolveNoio from 'browser-resolve-noio';
 
 module.exports = function getCreateDeps(plugin, types) {
-    // plugin gives us plugin.import(), etc. plus lodash of course.
-    const {_} = plugin;
+    // plugin gives us plugin.import(), etc. plus utils
+    const {_} = plugin.util;
 
     const readFile = (filePath, encoding, callback) => {
         // fix arguments
