@@ -71,11 +71,11 @@ MIT
 
 
 <!-- badge URLs -->
-[npm-url]: https://npmjs.org/package/exhibit-builder-babel
-[npm-image]: https://img.shields.io/npm/v/exhibit-builder-babel.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/exhibit-builder-browserify
+[npm-image]: https://img.shields.io/npm/v/exhibit-builder-browserify.svg?style=flat-square
 
-[travis-url]: http://travis-ci.org/exhibitjs/exhibit-builder-babel
-[travis-image]: https://img.shields.io/travis/exhibitjs/exhibit-builder-babel.svg?style=flat-square
+[travis-url]: http://travis-ci.org/exhibitjs/exhibit-builder-browserify
+[travis-image]: https://img.shields.io/travis/exhibitjs/exhibit-builder-browserify.svg?style=flat-square
 
-[depstat-url]: https://david-dm.org/exhibitjs/exhibit-builder-babel
-[depstat-image]: https://img.shields.io/david/exhibitjs/exhibit-builder-babel.svg?style=flat-square
+[depstat-url]: https://david-dm.org/exhibitjs/exhibit-builder-browserify
+[depstat-image]: https://img.shields.io/david/exhibitjs/exhibit-builder-browserify.svg?style=flat-square
