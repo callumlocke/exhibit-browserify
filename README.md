@@ -1,19 +1,19 @@
-# exhibit-builder-browserify [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][depstat-image]][depstat-url]
+# exhibit-builder-browserify [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url]
 
-> [Exhibit.js] builder plugin for bundling scripts with [Browserify](#).
+> [Exhibit.js](https://github.com/exhibitjs/exhibit) builder plugin for bundling scripts with [Browserify](http://browserify.org/).
 
-## Install
+## Installation
 
 ```sh
 $ npm install --save-dev exhibit-builder-browserify
 ```
 
 
-## Use
+## Usage
 
 ```js
 exhibit('src')
-  .use('browserify')
+  .use('browserify', options)
   .build('dist', {watch: true});
 ```
 
@@ -28,7 +28,7 @@ exhibit('src')
 
 ### Options
 
-Syntax: `.use('browserify', options)`. Alternatively you may pass the `entries` option as a separate first argument, e.g. `.use('browserify', 'main.js', options)` ...or just `.use('browserify', 'main.js')`.
+Syntax: `.use('browserify', options)`. Alternatively you may pass the `entries` option as a separate argument before your options, e.g. `.use('browserify', 'main.js', options)` ...or even just: `.use('browserify', 'main.js')`.
 
 
 #### `extensions` or `extension`

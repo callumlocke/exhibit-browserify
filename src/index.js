@@ -70,6 +70,7 @@ export default function () {
     if (options.extensions) allExtensions = allExtensions.concat(options.extensions);
 
     // make the isEntry function
+    console.log('options', options);
     if (_.isFunction(options.entries)) isEntry = options.entries;
     else if (_.isString(options.entries) || _.isArray(options.entries)) isEntry = micromatch.filter(options.entries);
     else throw new TypeError('options.entries should be a string, array or function');
@@ -122,7 +123,7 @@ export default function () {
 
       // block if it's a non-entry, non-skipped file
       const relativePath = relative(this.base, path);
-      if (!isEntry(relativePath) && skip && !skip(relativePath)) return null;
+      if (!isEntry(relativePath) && (!skip || !skip(relativePath))) return null;
 
       // it's an entry file...
 
