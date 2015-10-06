@@ -1,7 +1,7 @@
 {
   "name": "exhibit-builder-browserify",
   "description": "Exhibit.js builder plugin for bundling scripts with Browserify",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "author": "Callum Locke",
   "bugs": {
     "url": "https://github.com/exhibitjs/exhibit-builder-browserify/issues"
