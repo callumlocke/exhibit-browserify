@@ -1,7 +1,5 @@
-import {extname} from 'path';
 import {createReadStream} from 'streamifier';
-import {join, relative} from 'path';
-import browserResolve from 'browser-resolve-noio';
+import path from 'path';
 import getCreateDeps from './get-create-deps';
 
 const defaults = {
@@ -11,17 +9,15 @@ const defaults = {
   sourceMap: true,
 };
 
-
 export default function () {
   const _arguments = arguments;
 
-  let allSetUp, options, allExtensions, browserifyOptions, Browserify,
-      skip, isEntry;
+  let allSetUp, options, allExtensions, browserifyOptions, Browserify;
 
   /**
    * One-time setup function to fix up the options.
    */
-  function setup(Promise, _, micromatch) {
+  function setup(_) {
     // handle varying numbers of arguments
     switch (_arguments.length) {
       case 0:
@@ -41,7 +37,7 @@ export default function () {
         throw new TypeError('Invalid options');
     }
 
-    // allow singular forms for some options
+    // allow expressing some options in the singular
     if (options.entry) {
       options.entries = options.entry;
       delete options.entry;
@@ -69,35 +65,20 @@ export default function () {
     allExtensions = ['.js', '.json'];
     if (options.extensions) allExtensions = allExtensions.concat(options.extensions);
 
-    // make the isEntry function
-    if (_.isFunction(options.entries)) isEntry = options.entries;
-    else if (_.isString(options.entries) || _.isArray(options.entries)) isEntry = micromatch.filter(options.entries);
-    else throw new TypeError('options.entries should be a string, array or function');
-
-
-    // make the skip function (decides which 
-    if (options.skip) {
-      if (_.isFunction(options.skip)) skip = options.skip;
-      else if (_.isString(options.skip)) skip = micromatch.filter(options.skip);
-      else throw new TypeError('options.skip should be a string or function');
-    }
-
     // create the options that will be used to instantiate every Browserify instance
     browserifyOptions = {
       extensions: options.extensions,
       basedir: options.cwd, // or should this be the source dir?
       debug: options.sourceMap,
       fullPaths: true,
-      paths: join(options.cwd, 'node_modules'),
-      // cache: cache,
-      // packageCache: packageCache,
+      paths: path.join(options.cwd, 'node_modules'),
     };
 
     // load browserify
-    Browserify = require('browserify');
+    Browserify = require('browserify'); // eslint-disable-line global-require
 
     // delete it from the global cache because we're going to monkey-patch it
-    delete require.cache[require.resolve('browserify')]
+    delete require.cache[require.resolve('browserify')];
 
     allSetUp = true;
   }
@@ -106,35 +87,35 @@ export default function () {
   /**
    * Return a builder function.
    */
-  return function exhibitBrowserify(path, contents) {
-    const {Promise, _, micromatch} = this.util;
+  return function exhibitBrowserify(job) {
+    const {
+      file, matches, contents, ext,
+      util: {Promise, _},
+    } = job;
 
     // always return a promise
     return Promise.resolve().then(() => {
       // do initial setup only once
-      if (!allSetUp) setup(Promise, _, micromatch);
+      if (!allSetUp) setup(_);
 
-      // TODO: delete from cache?
+      // pass through if it's not a filetype we care about
+      // OR if it's been manually skipped.
+      if (allExtensions.indexOf(ext) === -1 || matches(options.ignore)) return contents;
 
-      // pass through if it's not a JS file (or another extension we've been configured to care about)
-      const extension = extname(path);
-      if (allExtensions.indexOf(extension) === -1) return contents;
-
-      // block if it's a non-entry, non-skipped file
-      const relativePath = relative(this.base, path);
-      if (!isEntry(relativePath) && (!skip || !skip(relativePath))) return null;
+      // block if it's a non-entry script
+      if (!matches(options.entries)) return null;
 
       // it's an entry file...
 
       // monkey-patch Browserify for this one instance
-      Browserify.prototype._createDeps = getCreateDeps(this, allExtensions);
+      Browserify.prototype._createDeps = getCreateDeps(job, allExtensions);
 
       // make a browserify instance
       const b = new Browserify(browserifyOptions);
 
       // browserify expects a stream, not a buffer
       const stream = createReadStream(contents);
-      stream.file = path; // https://github.com/substack/node-browserify/issues/816
+      stream.file = file; // https://github.com/substack/node-browserify/issues/816
       b.add(stream);
 
 
@@ -143,13 +124,13 @@ export default function () {
         .then(bundledContents => {
           // TODO: separate out souce map? ensure extension is correct?
 
-          // return the bundle!
+          // output the bundle
           return bundledContents;
         })
         .catch(err => {
-          console.error('BROWSERIFY BUNDLING ERROR', err.message, Object.keys(err));
+          // can't throw a SourceError due to
+          // https://github.com/substack/node-browserify/issues/1117
 
-          // TODO: throw a SourceError if appropriate
           throw err;
         });
     });

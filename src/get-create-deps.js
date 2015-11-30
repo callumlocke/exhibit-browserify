@@ -1,3 +1,5 @@
+/*eslint-disable */
+
 /**
  * Returns a function adapted from Browerify's _createDeps method:
  * https://github.com/substack/node-browserify/blob/f9c256174fe282f7a8ca619d7168161e8e208524/index.js#L419-L565
@@ -14,9 +16,8 @@ import builtins from 'browserify/lib/builtins';
 import insertGlobals from 'insert-module-globals';
 import browserResolveNoio from 'browser-resolve-noio';
 
-module.exports = function getCreateDeps(plugin, types) {
-    // plugin gives us plugin.import(), etc. plus utils
-    const {_} = plugin.util;
+module.exports = function getCreateDeps(job, types) {
+    const {importFile, util: {_}} = job;
 
     const readFile = (filePath, encoding, callback) => {
         // fix arguments
@@ -25,7 +26,7 @@ module.exports = function getCreateDeps(plugin, types) {
             encoding = null;
         }
 
-        plugin.import(filePath, types).then(result => {
+        importFile(filePath, types).then(result => {
             callback(null, encoding ?
                 result.contents.toString(encoding) :
                 result.contents
@@ -36,7 +37,7 @@ module.exports = function getCreateDeps(plugin, types) {
     };
 
     const isFile = (filePath, callback) => {
-        plugin.import(filePath, types).then(() => {
+        importFile(filePath, types).then(() => {
             callback(null, true);
         }).catch(error => {
             if (error.code === 'ENOENT' || error.code === 'EISDIR') {

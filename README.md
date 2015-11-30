@@ -1,6 +1,9 @@
-# exhibit-builder-browserify [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url]
+# browserify
 
-> [Exhibit.js](https://github.com/exhibitjs/exhibit) builder plugin for bundling scripts with [Browserify](http://browserify.org/).
+> **[Exhibit.js](https://github.com/exhibitjs/exhibit) builder**. Bundles your scripts with [Browserify](http://browserify.org/).
+> 
+> [![NPM version][npm-image]][npm-url] [![Dependency Status][depstat-image]][depstat-url]
+
 
 ## Installation
 
@@ -37,25 +40,19 @@ Syntax: `.use('browserify', options)`. Alternatively you may pass the `entries` 
 
 This should be an array of strings like `['.coffee', '.hbs']`. (Although the dots are optional.)
 
-Specifies extra extensions (in addition to `.js` and `.json`) that should be handled by this plugin. Useful in conjunction with certain Browserify transforms like [coffeeify](#) and [hbsfy](#). (But note you probably don't need Browserify transforms with Exhibit; you can just use other builders before this one so everything is already JavaScript by the time it gets here.)
+Specifies extra extensions (*in addition& to `.js` and `.json`) that should be handled by this plugin. Might be useful in conjunction with certain Browserify transforms like [coffeeify](https://github.com/jnordberg/coffeeify) and [hbsfy](https://github.com/epeli/node-hbsfy). (But note you probably don't need Browserify transforms with Exhibit – you can just use other builders earlier in the sequence so everything is ES5 JavaScript by the time it reaches Browserify.)
 
 
 #### `entries` or `entry`
+Default: `"**/*.entry.js"`
+Specifies which files should be considered bundle entry points.
+Follows Exhibit's [matching convention](https://github.com/exhibitjs/exhibit/docs/matching.md).
 
-**Default:** `"**/*.entry.js"`
 
-This can be a filename/glob or an array thereof, or a custom function that returns true/false for each path.
-
-
-#### `skip`
-
-**Default:** `null`
-
-Provide a filename/glob (or array thereof), or a callback function, to identify files that should be skipped.
-
-The point of this is to skip files that would normally be handled by Browserify, i.e. `.js` and `.json` files (and possibly others if you're using the `extensions` option).
-
-Good example: `skip: 'scripts/vendor/**/*.js'`
+#### `ignore`
+Default: `null`
+Files you want Browserify to ignore, even if they have a Browserify-able extension. For example, to avoid Browserifying your vendor scripts: `ignore: 'scripts/vendor/**/*.js'`
+Follows Exhibit's [matching convention](https://github.com/exhibitjs/exhibit/docs/matching.md).
 
 
 #### `sourceMap`
